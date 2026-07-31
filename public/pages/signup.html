@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Create your Aashe account and start connecting with NGOs and volunteers." />
+  <title>Sign Up | Aashe</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/auth.css" />
+</head>
+<body>
+  <div class="auth-page">
+    <!-- LEFT PANEL -->
+    <div class="auth-panel-left">
+      <div class="auth-brand">
+        <a href="../index.html" class="nav-logo">
+          <span class="logo-icon">&#10084;</span>
+          <span class="logo-text">Aashe</span>
+        </a>
+        <h2 class="auth-tagline">
+          Join the
+          <span class="gradient-text">Aashe Community</span>
+        </h2>
+        <p class="auth-desc">Every donation matters. Create your account to start connecting, giving, and tracking your contributions.</p>
+        <div class="auth-features">
+          <div class="auth-feature-item">
+            <span class="auth-feature-icon">&#128100;</span>
+            <div class="auth-feature-text">
+              <strong>Verified Profiles</strong>
+              All NGOs go through a verification process
+            </div>
+          </div>
+          <div class="auth-feature-item">
+            <span class="auth-feature-icon">&#128205;</span>
+            <div class="auth-feature-text">
+              <strong>Live Tracking</strong>
+              Real-time pickup visibility
+            </div>
+          </div>
+          <div class="auth-feature-item">
+            <span class="auth-feature-icon">&#128202;</span>
+            <div class="auth-feature-text">
+              <strong>Impact Analytics</strong>
+              See your donation impact clearly
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="auth-panel-right">
+      <div class="auth-form-container" style="max-width:480px">
+        <div class="auth-form-header">
+          <h2>Create Account</h2>
+          <p>Already have an account? <a href="login.html">Sign in</a></p>
+        </div>
+
+        <!-- ROLE SELECTOR -->
+        <div class="role-selector" id="roleSelector">
+          <div class="role-option selected" data-role="user" onclick="selectRole('user', this)">
+            <span class="role-option-icon">&#129309;</span>
+            <span class="role-option-label">Donor</span>
+          </div>
+          <div class="role-option" data-role="ngo" onclick="selectRole('ngo', this)">
+            <span class="role-option-icon">&#127968;</span>
+            <span class="role-option-label">NGO</span>
+          </div>
+          <div class="role-option" data-role="volunteer" onclick="selectRole('volunteer', this)">
+            <span class="role-option-icon">&#128664;</span>
+            <span class="role-option-label">Volunteer</span>
+          </div>
+        </div>
+
+        <form class="auth-form" id="signupForm" onsubmit="handleSignup(event)">
+          <!-- COMMON FIELDS -->
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="firstName">First Name</label>
+              <input class="form-input" type="text" id="firstName" placeholder="Priya" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="lastName">Last Name</label>
+              <input class="form-input" type="text" id="lastName" placeholder="Sharma" required />
+            </div>
+          </div>
+
+          <!-- NGO: Organization name instead -->
+          <div class="form-group" id="orgNameGroup" style="display:none">
+            <label class="form-label" for="orgName">Organization / NGO Name</label>
+            <input class="form-input" type="text" id="orgName" placeholder="Hope Foundation" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="signupEmail">Email Address</label>
+            <input class="form-input" type="email" id="signupEmail" placeholder="you@example.com" required autocomplete="email" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="phone">Phone Number</label>
+            <input class="form-input" type="tel" id="phone" placeholder="9876543210" required maxlength="10" />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="city">City</label>
+              <input class="form-input" type="text" id="city" placeholder="Mumbai" required />
+            </div>
+            <div class="form-group" id="vehicleGroup" style="display:none">
+              <label class="form-label" for="vehicle">Vehicle Type</label>
+              <select class="form-select" id="vehicle">
+                <option value="Bike">Bike</option>
+                <option value="Scooter">Scooter</option>
+                <option value="Car">Car</option>
+                <option value="Cycle">Cycle</option>
+              </select>
+            </div>
+            <div class="form-group" id="addressGroup">
+              <label class="form-label" for="address">Address</label>
+              <input class="form-input" type="text" id="address" placeholder="Street, Area" />
+            </div>
+          </div>
+
+          <!-- NGO REGISTRATION NUMBER -->
+          <div class="form-group" id="regNoGroup" style="display:none">
+            <label class="form-label" for="regNo">NGO Registration Number</label>
+            <input class="form-input" type="text" id="regNo" placeholder="NGO-MH-2024-XXXX" />
+          </div>
+
+          <!-- NGO CERTIFICATE UPLOAD -->
+          <div class="form-group" id="certGroup" style="display:none">
+            <label class="form-label">Certificate Verification</label>
+            <div class="file-upload-zone" id="fileZone" onclick="document.getElementById('certFile').click()">
+              <input type="file" id="certFile" accept=".pdf,.jpg,.png" onchange="handleFileSelect(this)" />
+              <div class="file-upload-icon">&#128196;</div>
+              <p><span>Click to upload</span> or drag and drop<br/>
+              Registration certificate, 80G certificate, FCRA (PDF, JPG, PNG)</p>
+              <div id="fileSelectedName" style="margin-top:8px;font-size:0.78rem;color:var(--pink-400);display:none;"></div>
+            </div>
+          </div>
+
+          <div class="form-divider"><span>Security</span></div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="newPassword">Password</label>
+              <input class="form-input" type="password" id="newPassword" placeholder="Min 6 characters" required minlength="6" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="confirmPassword">Confirm Password</label>
+              <input class="form-input" type="password" id="confirmPassword" placeholder="Repeat password" required />
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary auth-submit-btn" id="signupBtn">
+            Create Account
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+        </form>
+        <p class="auth-footer-note">By creating an account, you agree to our Terms of Service.</p>
+      </div>
+    </div>
+  </div>
+
+  <div style="position:fixed;bottom:16px;right:16px;font-size:0.72rem;color:var(--text-muted);background:var(--bg-card);border:1px solid var(--border-subtle);padding:6px 14px;border-radius:var(--radius-full);">
+    Made by Ishita and Mahima
+  </div>
+
+  <script src="../js/app.js"></script>
+  <script>
+    let selectedRole = 'user';
+
+    function selectRole(role, el) {
+      selectedRole = role;
+      document.querySelectorAll('.role-option').forEach(r => r.classList.remove('selected'));
+      el.classList.add('selected');
+
+      // Show/hide role-specific fields
+      const isNGO = role === 'ngo';
+      const isVolunteer = role === 'volunteer';
+
+      document.getElementById('orgNameGroup').style.display = isNGO ? 'flex' : 'none';
+      document.getElementById('orgNameGroup').style.flexDirection = 'column';
+      document.getElementById('orgNameGroup').style.gap = '6px';
+      document.getElementById('certGroup').style.display = isNGO ? 'flex' : 'none';
+      document.getElementById('certGroup').style.flexDirection = 'column';
+      document.getElementById('certGroup').style.gap = '6px';
+      document.getElementById('regNoGroup').style.display = isNGO ? 'flex' : 'none';
+      document.getElementById('regNoGroup').style.flexDirection = 'column';
+      document.getElementById('regNoGroup').style.gap = '6px';
+      document.getElementById('vehicleGroup').style.display = isVolunteer ? 'flex' : 'none';
+      document.getElementById('vehicleGroup').style.flexDirection = 'column';
+      document.getElementById('vehicleGroup').style.gap = '6px';
+      document.getElementById('addressGroup').style.display = isVolunteer ? 'none' : 'flex';
+      document.getElementById('addressGroup').style.flexDirection = 'column';
+      document.getElementById('addressGroup').style.gap = '6px';
+      document.getElementById('firstName').placeholder = isNGO ? 'Contact Person First Name' : 'Priya';
+      document.getElementById('lastName').placeholder = isNGO ? 'Last Name' : 'Sharma';
+    }
+
+    function handleFileSelect(input) {
+      const nameEl = document.getElementById('fileSelectedName');
+      if (input.files[0]) {
+        nameEl.textContent = 'Selected: ' + input.files[0].name;
+        nameEl.style.display = 'block';
+        document.getElementById('fileZone').style.borderColor = 'var(--pink-500)';
+        AASHE.showToast('Certificate uploaded successfully.', 'success');
+      }
+    }
+
+    async function handleSignup(e) {
+      e.preventDefault();
+      const pwd = document.getElementById('newPassword').value;
+      const confirm = document.getElementById('confirmPassword').value;
+      if (pwd !== confirm) {
+        AASHE.showToast('Passwords do not match.', 'error');
+        return;
+      }
+
+      const btn = document.getElementById('signupBtn');
+      btn.textContent = 'Creating Account...';
+      btn.disabled = true;
+
+      const firstName = document.getElementById('firstName').value.trim();
+      const lastName = document.getElementById('lastName').value.trim();
+      const fullName = selectedRole === 'ngo'
+        ? (document.getElementById('orgName').value.trim() || `${firstName} ${lastName}`)
+        : `${firstName} ${lastName}`;
+
+      const data = {
+        role: selectedRole,
+        name: fullName,
+        email: document.getElementById('signupEmail').value.trim(),
+        password: pwd,
+        phone: document.getElementById('phone').value.trim(),
+        city: document.getElementById('city').value.trim(),
+      };
+
+      if (selectedRole === 'volunteer') data.vehicle = document.getElementById('vehicle').value;
+      if (selectedRole !== 'volunteer') data.address = document.getElementById('address').value.trim();
+      if (selectedRole === 'ngo') {
+        data.reg_no = document.getElementById('regNo').value.trim();
+      }
+
+      try {
+        const result = await AASHE.apiRegister(data);
+        if (result.ok && result.data.success) {
+          AASHE.saveSession(result.data.token, result.data.user);
+          AASHE.showToast('Account created! Redirecting to your dashboard...', 'success');
+          setTimeout(() => {
+            window.location.href = AASHE.getDashboardPath(selectedRole);
+          }, 1200);
+        } else {
+          AASHE.showToast(result.data.message || 'Registration failed', 'error');
+          btn.innerHTML = 'Create Account <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+          btn.disabled = false;
+        }
+      } catch (err) {
+        AASHE.showToast('Network error, please try again later', 'error');
+        btn.innerHTML = 'Create Account <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+        btn.disabled = false;
+      }
+    }
+
+    // Handle role from URL query
+    window.addEventListener('DOMContentLoaded', () => {
+      const user = AASHE.getSession();
+      if (user) window.location.href = AASHE.getDashboardPath(user.role);
+      const params = new URLSearchParams(window.location.search);
+      const roleParam = params.get('role');
+      if (roleParam) {
+        const roleEl = document.querySelector(`.role-option[data-role="${roleParam}"]`);
+        if (roleEl) selectRole(roleParam, roleEl);
+      }
+    });
+  </script>
+</body>
+</html>

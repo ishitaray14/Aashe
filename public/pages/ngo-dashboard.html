@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Aashe NGO Dashboard - Manage donation requests, assign volunteers, and track impact."/>
+  <title>NGO Dashboard | Aashe</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../css/style.css"/>
+  <link rel="stylesheet" href="../css/dashboard.css"/>
+</head>
+<body>
+<div class="dashboard-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a href="../index.html" class="nav-logo">
+        <span class="logo-icon">&#10084;</span>
+        <span class="logo-text">Aashe</span>
+      </a>
+    </div>
+    <nav class="sidebar-nav">
+      <span class="sidebar-section-label">Menu</span>
+      <div class="sidebar-nav-item active" data-panel="overview" onclick="switchPanel('overview', this)">
+        <span class="sidebar-nav-icon">&#127968;</span> Overview
+      </div>
+      <div class="sidebar-nav-item" data-panel="requests" onclick="switchPanel('requests', this)">
+        <span class="sidebar-nav-icon">&#128203;</span> Requests
+        <span id="pendingBadge" class="badge badge-warning" style="margin-left:auto;font-size:0.7rem;">2</span>
+      </div>
+      <div class="sidebar-nav-item" data-panel="map" onclick="switchPanel('map', this)">
+        <span class="sidebar-nav-icon">&#128205;</span> Map View
+      </div>
+      <div class="sidebar-nav-item" data-panel="volunteers" onclick="switchPanel('volunteers', this)">
+        <span class="sidebar-nav-icon">&#128664;</span> Volunteers
+      </div>
+      <div class="sidebar-nav-item" data-panel="analytics" onclick="switchPanel('analytics', this)">
+        <span class="sidebar-nav-icon">&#128202;</span> Analytics
+      </div>
+      <div class="sidebar-nav-item" data-panel="profile" onclick="switchPanel('profile', this)">
+        <span class="sidebar-nav-icon">&#128100;</span> NGO Profile
+      </div>
+    </nav>
+    <div class="sidebar-user-area">
+      <div class="sidebar-avatar" id="sidebarAvatar">H</div>
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name" id="sidebarName">Hope Foundation</div>
+        <div class="sidebar-user-role">NGO</div>
+      </div>
+      <span class="sidebar-logout" onclick="logout()" title="Logout">&#128682;</span>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="dashboard-main">
+    <div class="dashboard-topbar">
+      <div>
+        <div class="topbar-title" id="topbarTitle">Overview</div>
+        <div class="topbar-subtitle">NGO Dashboard</div>
+      </div>
+      <div class="topbar-actions">
+        <div class="topbar-notif">&#128276;<div class="notif-dot"></div></div>
+        <span class="badge badge-success">&#9679; Verified NGO</span>
+      </div>
+    </div>
+
+    <div class="dashboard-content">
+
+      <!-- OVERVIEW PANEL -->
+      <div class="dashboard-panel active" id="panel-overview">
+        <div class="stats-row" id="statsRow"></div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;">
+          <!-- Recent Requests -->
+          <div>
+            <div class="dash-section-header">
+              <h2>Recent Requests</h2>
+              <span class="btn btn-sm btn-secondary" onclick="switchPanel('requests', document.querySelector('[data-panel=requests]'))">View All</span>
+            </div>
+            <div id="recentRequests"></div>
+          </div>
+
+          <!-- Active Volunteer Tracking -->
+          <div>
+            <div class="dash-section-header">
+              <h2>Live Volunteer</h2>
+              <span class="badge badge-success"><span class="live-dot" style="display:inline-block;width:7px;height:7px;background:#27ae60;border-radius:50;margin-right:4px;"></span> Live</span>
+            </div>
+            <div id="ngoTrackWidget"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- REQUESTS PANEL -->
+      <div class="dashboard-panel" id="panel-requests">
+        <div class="dash-section-header">
+          <h2>Donation Requests</h2>
+          <div style="display:flex;gap:8px;">
+            <select class="form-select" style="width:auto;font-size:0.82rem;padding:6px 32px 6px 10px;" onchange="filterRequests(this.value)" id="reqFilter">
+              <option value="all">All</option>
+              <option value="pending">Pending</option>
+              <option value="accepted">Accepted</option>
+              <option value="completed">Completed</option>
+            </select>
+          </div>
+        </div>
+        <div id="requestsList"></div>
+      </div>
+
+      <!-- MAP PANEL -->
+      <div class="dashboard-panel" id="panel-map">
+        <div class="dash-section-header">
+          <h2>Requests Map</h2>
+          <p>Click a pin to view request details</p>
+        </div>
+        <div class="mock-map" id="mainMap" style="height:480px;cursor:default;">
+          <div class="mock-map-label">&#128205; Mumbai, Maharashtra (Simulated)</div>
+          <!-- Pins loaded by JS -->
+        </div>
+        <div id="mapSelectedInfo" style="display:none;margin-top:16px;"></div>
+      </div>
+
+      <!-- VOLUNTEERS PANEL -->
+      <div class="dashboard-panel" id="panel-volunteers">
+        <div class="dash-section-header">
+          <h2>Volunteer Team</h2>
+          <p>Manage available volunteers</p>
+        </div>
+        <div class="stats-row" style="margin-bottom:20px;">
+          <div class="stat-card">
+            <div class="stat-card-icon">&#127881;</div>
+            <div class="stat-card-value" id="onlineVolCount">2</div>
+            <div class="stat-card-label">Online Now</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-icon">&#128664;</div>
+            <div class="stat-card-value">3</div>
+            <div class="stat-card-label">Total Volunteers</div>
+          </div>
+        </div>
+        <div class="data-table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Volunteer</th><th>Status</th><th>Deliveries</th><th>Distance</th><th>Action</th></tr></thead>
+            <tbody id="volunteerTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ANALYTICS PANEL -->
+      <div class="dashboard-panel" id="panel-analytics">
+        <div class="dash-section-header">
+          <h2>Donation Analytics</h2>
+          <p>Impact overview for your NGO</p>
+        </div>
+
+        <div class="stats-row" style="margin-bottom:28px;" id="analyticsStats"></div>
+
+        <div class="analytics-grid">
+          <div class="analytics-donut-wrap">
+            <h3 style="font-family:var(--font-display);font-weight:700;color:var(--text-primary);margin-bottom:16px;font-size:0.95rem;">Item Breakdown</h3>
+            <div class="donut-chart-wrap">
+              <canvas id="analyticsDonut" width="200" height="200"></canvas>
+              <div class="donut-center">
+                <span class="donut-number">1,200</span>
+                <span class="donut-label">Total</span>
+              </div>
+            </div>
+            <div class="impact-legend" id="analyticsLegend"></div>
+          </div>
+
+          <div class="analytics-bar-wrap">
+            <h3 style="font-family:var(--font-display);font-weight:700;color:var(--text-primary);margin-bottom:20px;font-size:0.95rem;">Items Donated</h3>
+            <div class="bar-chart" id="analyticsBarChart"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROFILE PANEL -->
+      <div class="dashboard-panel" id="panel-profile">
+        <div class="profile-header-card">
+          <div class="profile-avatar-xl" id="profileAvatar">H</div>
+          <div>
+            <div class="profile-name" id="profileName">Hope Foundation</div>
+            <div class="profile-role-badge">&#127968; Verified NGO</div>
+            <div class="profile-meta" id="profileMeta">Member since Feb 2025</div>
+          </div>
+          <div style="margin-left:auto">
+            <span class="badge badge-success" style="font-size:0.85rem;padding:8px 16px;">&#9989; Certificate Verified</span>
+          </div>
+        </div>
+        <div style="background:var(--gradient-card);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);padding:24px;">
+          <div class="dash-section-header" style="margin-bottom:16px;"><h2>Organization Details</h2></div>
+          <div class="profile-info-grid" id="profileInfoGrid"></div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- ASSIGN VOLUNTEER MODAL -->
+<div class="modal-overlay" id="assignModal" style="display:none;">
+  <div class="modal-box">
+    <h2 class="modal-title">&#128664; Assign Volunteer</h2>
+    <p class="modal-desc">Select an available online volunteer for this pickup.</p>
+    <div class="volunteer-list" id="volunteerList"></div>
+    <div style="display:flex;gap:12px;justify-content:flex-end;">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmAssign()" id="confirmAssignBtn">Confirm Assignment</button>
+    </div>
+  </div>
+</div>
+
+<script src="../js/app.js"></script>
+<script>
+  let user;
+  let selectedVolunteer = null;
+  let currentAssignReqId = null;
+  let allRequests = [];
+
+  window.addEventListener('DOMContentLoaded', async () => {
+    user = await AASHE.requireAuth('ngo');
+    if (!user) return;
+    renderSidebar();
+    await fetchDonations();
+    renderVolunteers();
+    renderAnalytics();
+    renderProfile();
+  });
+
+  async function fetchDonations() {
+    const res = await AASHE.apiGetDonations();
+    if (res.ok && res.data.success) {
+      allRequests = res.data.donations;
+      renderOverview();
+      renderRequests(document.getElementById('reqFilter')?.value || 'all');
+      renderMap();
+    }
+  }
+
+  function renderSidebar() {
+    document.getElementById('sidebarAvatar').textContent = user.name[0].toUpperCase();
+    document.getElementById('sidebarName').textContent = user.name;
+  }
+
+  function renderOverview() {
+    const pending = allRequests.filter(r => r.status === 'pending').length;
+    const accepted = allRequests.filter(r => r.status === 'accepted').length;
+    const completed = allRequests.filter(r => r.status === 'completed').length;
+
+    document.getElementById('statsRow').innerHTML = `
+      <div class="stat-card">
+        <div class="stat-card-icon">&#128203;</div>
+        <div class="stat-card-value">${pending}</div>
+        <div class="stat-card-label">Pending Requests</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-icon">&#128664;</div>
+        <div class="stat-card-value">${accepted}</div>
+        <div class="stat-card-label">Active Pickups</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-icon">&#9989;</div>
+        <div class="stat-card-value">${completed}</div>
+        <div class="stat-card-label">Completed</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-icon">&#127881;</div>
+        <div class="stat-card-value">${allRequests.length}</div>
+        <div class="stat-card-label">Total Handled</div>
+      </div>
+    `;
+
+    // Recent requests (just show pending)
+    const pending2 = allRequests.filter(r => r.status === 'pending').slice(0, 2);
+    const recentEl = document.getElementById('recentRequests');
+    recentEl.innerHTML = pending2.map(r => buildRequestCard(r, true)).join('') ||
+      '<p style="color:var(--text-muted);font-size:0.85rem;">No pending requests.</p>';
+
+    // NGO volunteer tracking widget
+    const acceptedReq = allRequests.find(r => r.status === 'accepted');
+    const trackEl = document.getElementById('ngoTrackWidget');
+    if (acceptedReq) {
+      trackEl.innerHTML = `
+        <div class="tracking-card">
+          <div class="tracking-header">
+            <span style="font-family:var(--font-display);font-weight:700;font-size:0.9rem;color:var(--text-primary);">Rahul Verma</span>
+            <div class="tracking-status-live"><div class="live-dot"></div> En Route</div>
+          </div>
+          <div class="tracking-map mock-map" style="height:160px;" id="ngoTrackMap">
+            <div class="mock-map-label">&#128205; Simulated</div>
+          </div>
+          <div style="padding:14px 18px;display:flex;align-items:center;gap:14px;background:rgba(255,255,255,0.02);">
+            <div style="flex:1;font-size:0.82rem;color:var(--text-secondary);">
+              Picking up from: <strong style="color:var(--text-primary);">${acceptedReq.userName}</strong>
+            </div>
+            <span style="font-family:var(--font-display);font-weight:800;color:var(--pink-400);">1.8 km away</span>
+          </div>
+        </div>
+      `;
+      setTimeout(() => addMapPins('ngoTrackMap', [acceptedReq]), 100);
+    } else {
+      trackEl.innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;padding:20px;border:1px solid var(--border-subtle);border-radius:12px;text-align:center;">No active pickups right now.</p>';
+    }
+  }
+
+  function buildRequestCard(r, compact = false) {
+    const donorName = r.donor_name || r.userName || 'Donor';
+    const address = r.address || r.userAddress || 'Address';
+    const volunteerName = r.volunteer_name || r.volunteerName;
+    const timestamp = r.created_at ? new Date(r.created_at).toLocaleString() : (r.timestamp || '');
+    
+    const statusMap = { pending: 'warning', accepted: 'info', completed: 'success', declined: 'danger' };
+    const itemTags = (r.items || []).map(i => `<span class="request-item-tag">${i.emoji} ${i.name} x${i.qty}</span>`).join('');
+    const actions = r.status === 'pending' ? `
+      <button class="btn btn-success btn-sm" onclick="acceptRequest('${r.id}')">Accept</button>
+      <button class="btn btn-danger btn-sm" onclick="declineRequest('${r.id}')">Decline</button>
+    ` : r.status === 'accepted' ? `
+      <button class="btn btn-outline btn-sm" onclick="openAssignModal('${r.id}')">Re-assign Volunteer</button>
+      <button class="btn btn-success btn-sm" onclick="completeRequest('${r.id}')">Mark Complete</button>
+    ` : `<span class="badge badge-success">Done</span>`;
+
+    return `
+      <div class="request-card" id="reqcard-${r.id}">
+        <div class="request-card-header">
+          <div class="request-user-info">
+            <div class="request-avatar">${donorName[0].toUpperCase()}</div>
+            <div>
+              <div class="request-user-name">${donorName}</div>
+              <div class="request-user-address">&#128205; ${address}</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-size:0.75rem;color:var(--text-muted);">${timestamp}</span>
+            <span class="badge badge-${statusMap[r.status]}">${r.status}</span>
+          </div>
+        </div>
+        <div class="request-items">${itemTags}</div>
+        ${volunteerName ? `<p style="font-size:0.78rem;color:var(--text-secondary);margin-bottom:10px;">Volunteer: <strong style="color:var(--text-primary)">${volunteerName}</strong></p>` : ''}
+        ${!compact ? `<div class="request-actions">${actions}</div>` : `
+          <div class="request-actions">
+            <button class="btn btn-success btn-sm" onclick="acceptRequest('${r.id}');switchPanel('requests',document.querySelector('[data-panel=requests]'))">Accept</button>
+            <button class="btn btn-danger btn-sm" onclick="declineRequest('${r.id}')">Decline</button>
+          </div>`}
+      </div>
+    `;
+  }
+
+  function renderRequests(filter = 'all') {
+    let reqs = allRequests;
+    if (filter !== 'all') reqs = reqs.filter(r => r.status === filter);
+    document.getElementById('requestsList').innerHTML = reqs.map(r => buildRequestCard(r)).join('') ||
+      '<p style="color:var(--text-muted);text-align:center;padding:40px 0;">No requests found.</p>';
+    document.getElementById('pendingBadge').textContent = allRequests.filter(r => r.status === 'pending').length;
+  }
+
+  function filterRequests(val) { renderRequests(val); }
+
+  async function acceptRequest(id) {
+    const res = await AASHE.apiUpdateDonationStatus(id, { status: 'accepted' });
+    if(res.ok) {
+      AASHE.showToast('Request accepted! Please assign a volunteer.', 'success');
+      await fetchDonations();
+      openAssignModal(id);
+    }
+  }
+
+  async function declineRequest(id) {
+    const res = await AASHE.apiUpdateDonationStatus(id, { status: 'declined' });
+    if(res.ok) {
+      AASHE.showToast('Request declined.', 'info');
+      await fetchDonations();
+    }
+  }
+
+  async function completeRequest(id) {
+    const res = await AASHE.apiUpdateDonationStatus(id, { status: 'completed' });
+    if(res.ok) {
+      AASHE.showToast('Request marked as complete!', 'success');
+      await fetchDonations();
+    }
+  }
+
+  async function openAssignModal(reqId) {
+    currentAssignReqId = reqId;
+    selectedVolunteer = null;
+    const res = await AASHE.apiGetVolunteers();
+    const online = res.ok && res.data.success ? res.data.volunteers : [];
+    
+    document.getElementById('volunteerList').innerHTML = online.map(v => `
+      <div class="volunteer-option" id="vopt-${v.id}" onclick="selectVolunteerOption(${v.id}, this, '${v.name}')">
+        <div class="volunteer-option-avatar">${v.name[0]}</div>
+        <div>
+          <div class="volunteer-option-name">${v.name}</div>
+          <div class="volunteer-option-status">&#9679; Online</div>
+        </div>
+      </div>
+    `).join('') || '<p style="color:var(--text-muted);font-size:0.85rem;">No online volunteers available.</p>';
+    document.getElementById('assignModal').style.display = 'flex';
+  }
+
+  function selectVolunteerOption(id, el, name) {
+    selectedVolunteer = { id, name };
+    document.querySelectorAll('.volunteer-option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  async function confirmAssign() {
+    if (!selectedVolunteer || !currentAssignReqId) {
+      AASHE.showToast('Please select a volunteer first.', 'error');
+      return;
+    }
+    const res = await AASHE.apiUpdateDonationStatus(currentAssignReqId, { 
+      status: 'accepted',
+      volunteerId: selectedVolunteer.id
+    });
+    
+    if(res.ok) {
+      AASHE.showToast(`${selectedVolunteer.name} assigned successfully!`, 'success');
+      closeModal();
+      await fetchDonations();
+    }
+  }
+
+  function closeModal() {
+    document.getElementById('assignModal').style.display = 'none';
+    selectedVolunteer = null;
+    currentAssignReqId = null;
+  }
+
+  function renderMap() {
+    const map = document.getElementById('mainMap');
+    map.innerHTML = '<div class="mock-map-label">&#128205; Mumbai, Maharashtra (Simulated)</div>';
+    
+    allRequests.forEach(r => {
+      // Map mock pos purely for display based on ID
+      const fakeTop = 30 + (r.id * 13) % 40;
+      const fakeLeft = 20 + (r.id * 27) % 50;
+      
+      const pin = document.createElement('div');
+      pin.className = 'map-location-pin';
+      pin.style.position = 'absolute';
+      pin.style.top = fakeTop + '%';
+      pin.style.left = fakeLeft + '%';
+      pin.onclick = () => showMapInfo(r);
+      const statusColor = r.status === 'completed' ? '🟢' : r.status === 'accepted' ? '🔵' : '🔴';
+      pin.innerHTML = `
+        <div class="map-pin-icon">📍</div>
+        <div class="map-pin-label">${statusColor} ${r.userName}</div>
+      `;
+      map.appendChild(pin);
+
+      if (r.volunteer_name) {
+        const vDot = document.createElement('div');
+        vDot.className = 'volunteer-map-dot';
+        vDot.style.position = 'absolute';
+        vDot.style.top = (fakeTop + 5) + '%';
+        vDot.style.left = (fakeLeft + 5) + '%';
+        vDot.title = r.volunteer_name;
+        map.appendChild(vDot);
+      }
+    });
+  }
+
+  function addMapPins(mapId, requests) {
+    const map = document.getElementById(mapId);
+    if (!map) return;
+    requests.forEach(r => {
+      const fakeTop = 30 + (r.id * 13) % 40;
+      const fakeLeft = 20 + (r.id * 27) % 50;
+      const pin = document.createElement('div');
+      pin.className = 'map-location-pin';
+      pin.style.cssText = `position:absolute;top:${fakeTop}%;left:${fakeLeft}%`;
+      pin.innerHTML = `<div class="map-pin-icon" style="font-size:1.2rem;">📍</div>`;
+      map.appendChild(pin);
+    });
+  }
+
+  function showMapInfo(r) {
+    const donorName = r.donor_name || r.userName || 'Donor';
+    const address = r.address || r.userAddress || 'Address';
+    const el = document.getElementById('mapSelectedInfo');
+    el.style.display = 'block';
+    el.innerHTML = `
+      <div class="request-card">
+        <div class="request-card-header">
+          <div class="request-user-info">
+            <div class="request-avatar">${donorName[0].toUpperCase()}</div>
+            <div>
+              <div class="request-user-name">${donorName}</div>
+              <div class="request-user-address">&#128205; ${address}</div>
+            </div>
+          </div>
+          <span class="badge badge-${r.status === 'pending' ? 'warning' : r.status === 'accepted' ? 'info' : 'success'}">${r.status}</span>
+        </div>
+        <div class="request-items">${(r.items || []).map(i => `<span class="request-item-tag">${i.emoji} ${i.name} x${i.qty}</span>`).join('')}</div>
+        ${r.status === 'pending' ? `<div class="request-actions"><button class="btn btn-success btn-sm" onclick="acceptRequest('${r.id}')">Accept</button></div>` : ''}
+      </div>
+    `;
+  }
+
+  async function renderVolunteers() {
+    const res = await AASHE.apiGetVolunteers();
+    const vols = res.ok && res.data.success ? res.data.volunteers : [];
+    
+    document.getElementById('onlineVolCount').textContent = vols.length;
+    
+    const tbody = document.getElementById('volunteerTableBody');
+    tbody.innerHTML = vols.map(v => `
+      <tr>
+        <td>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#1a7a4a,#27ae60);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.8rem;color:#fff;flex-shrink:0;">${v.name[0]}</div>
+            <span style="font-weight:600;color:var(--text-primary);">${v.name}</span>
+          </div>
+        </td>
+        <td><span class="badge badge-success">online</span></td>
+        <td style="font-family:var(--font-display);font-weight:700;">${v.total_deliveries || 0}</td>
+        <td>Local</td>
+        <td>
+          <button class="btn btn-outline btn-sm" onclick="AASHE.showToast('Volunteer contacted via app.','info')">Contact</button>
+        </td>
+      </tr>
+    `).join('') || '<tr><td colspan="5" style="text-align:center;padding:20px;">No online volunteers.</td></tr>';
+  }
+
+  function renderAnalytics() {
+    // Generate dummy analytics based on length
+    const total = allRequests.length || 1;
+    const pending = allRequests.filter(r => r.status === 'pending').length;
+
+    document.getElementById('analyticsStats').innerHTML = `
+      <div class="stat-card">
+        <div class="stat-card-icon">&#127873;</div>
+        <div class="stat-card-value">${total}</div>
+        <div class="stat-card-label">Total Donations</div>
+        <div class="stat-card-change">+12% this month</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-icon">&#128100;</div>
+        <div class="stat-card-value">${total}</div>
+        <div class="stat-card-label">Families Helped</div>
+        <div class="stat-card-change">+5% this month</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-icon">&#128664;</div>
+        <div class="stat-card-value">1+</div>
+        <div class="stat-card-label">Active Volunteers</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-icon">&#128203;</div>
+        <div class="stat-card-value">${pending}</div>
+        <div class="stat-card-label">Pending Today</div>
+      </div>
+    `;
+
+    const items = [
+      { name: 'Clothes', count: Math.ceil(total * 0.4), color: '#e91e8c', pct: 40 },
+      { name: 'Books', count: Math.ceil(total * 0.3), color: '#ff6eb4', pct: 30 },
+      { name: 'Food', count: Math.ceil(total * 0.2), color: '#ff9fcb', pct: 20 },
+      { name: 'Others', count: Math.ceil(total * 0.1), color: '#ffd1e8', pct: 10 }
+    ];
+
+    // Donut
+    setTimeout(() => {
+      AASHE.drawDonut('analyticsDonut', items, total);
+    }, 200);
+
+    // Legend
+    document.getElementById('analyticsLegend').innerHTML = items.map(i => `
+      <div class="legend-item"><span class="legend-dot" style="background:${i.color}"></span>${i.name} (${i.pct}%)</div>
+    `).join('');
+
+    // Bar chart
+    const maxCount = Math.max(...items.map(i => i.count));
+    document.getElementById('analyticsBarChart').innerHTML = items.map(i => `
+      <div class="bar-row">
+        <span class="bar-label">${i.name}</span>
+        <div class="bar-track"><div class="bar-fill" style="width:${(i.count/maxCount*100).toFixed(0)}%;background:${i.color}"></div></div>
+        <span class="bar-val">${i.count}</span>
+      </div>
+    `).join('');
+  }
+
+  function renderProfile() {
+    document.getElementById('profileAvatar').textContent = user.name[0].toUpperCase();
+    document.getElementById('profileName').textContent = user.name;
+    document.getElementById('profileMeta').textContent = `Member since ${user.joinDate || 'Jan 2025'}`;
+
+    const fields = [
+      { label: 'NGO Name', value: user.name },
+      { label: 'Contact Email', value: user.email },
+      { label: 'Phone', value: user.phone || 'Not provided' },
+      { label: 'City', value: user.city || 'Not provided' },
+      { label: 'Registration No.', value: user.regNo || 'NGO-MH-2020-1234' },
+      { label: 'Certificate', value: 'Uploaded and Verified' }
+    ];
+    document.getElementById('profileInfoGrid').innerHTML = fields.map(f => `
+      <div class="profile-info-item">
+        <div class="profile-info-label">${f.label}</div>
+        <div class="profile-info-value">${f.value}</div>
+      </div>
+    `).join('');
+  }
+
+  function switchPanel(name, el) {
+    document.querySelectorAll('.dashboard-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.sidebar-nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('panel-' + name).classList.add('active');
+    if (el) el.classList.add('active');
+    document.getElementById('topbarTitle').textContent = { overview:'Overview', requests:'Requests', map:'Map View', volunteers:'Volunteers', analytics:'Analytics', profile:'NGO Profile' }[name] || name;
+
+    if (name === 'analytics') {
+      setTimeout(() => AASHE.drawDonut('analyticsDonut', AASHE.data.analytics.items, AASHE.data.analytics.totalDonations), 100);
+    }
+  }
+
+  function logout() {
+    AASHE.clearSession();
+    window.location.href = '../index.html';
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Aashe Volunteer Dashboard - Go online, accept assignments, and help communities."/>
+  <title>Volunteer Dashboard | Aashe</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../css/style.css"/>
+  <link rel="stylesheet" href="../css/dashboard.css"/>
+</head>
+<body>
+<div class="dashboard-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a href="../index.html" class="nav-logo">
+        <span class="logo-icon">&#10084;</span>
+        <span class="logo-text">Aashe</span>
+      </a>
+    </div>
+    <nav class="sidebar-nav">
+      <span class="sidebar-section-label">Menu</span>
+      <div class="sidebar-nav-item active" data-panel="home" onclick="switchPanel('home', this)">
+        <span class="sidebar-nav-icon">&#127968;</span> Home
+      </div>
+      <div class="sidebar-nav-item" data-panel="assignment" onclick="switchPanel('assignment', this)">
+        <span class="sidebar-nav-icon">&#128203;</span> Assignment
+        <span id="assignBadge" class="badge badge-pink" style="margin-left:auto;font-size:0.7rem;display:none;">1</span>
+      </div>
+      <div class="sidebar-nav-item" data-panel="history" onclick="switchPanel('history', this)">
+        <span class="sidebar-nav-icon">&#128202;</span> History
+      </div>
+      <div class="sidebar-nav-item" data-panel="profile" onclick="switchPanel('profile', this)">
+        <span class="sidebar-nav-icon">&#128100;</span> Profile
+      </div>
+    </nav>
+    <div class="sidebar-user-area">
+      <div class="sidebar-avatar" id="sidebarAvatar">R</div>
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name" id="sidebarName">Rahul Verma</div>
+        <div class="sidebar-user-role">Volunteer</div>
+      </div>
+      <span class="sidebar-logout" onclick="logout()" title="Logout">&#128682;</span>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="dashboard-main">
+    <div class="dashboard-topbar">
+      <div>
+        <div class="topbar-title" id="topbarTitle">Home</div>
+        <div class="topbar-subtitle">Volunteer Dashboard</div>
+      </div>
+      <div class="topbar-actions">
+        <div class="topbar-notif" id="notifBell">&#128276;<div class="notif-dot" id="notifDot"></div></div>
+        <div id="statusIndicator" class="badge badge-warning">&#9679; Offline</div>
+      </div>
+    </div>
+
+    <div class="dashboard-content">
+
+      <!-- HOME PANEL -->
+      <div class="dashboard-panel active" id="panel-home">
+
+        <!-- STATUS TOGGLE CARD -->
+        <div class="status-toggle-card offline" id="statusCard">
+          <div class="status-toggle-info">
+            <h3 id="statusTitle">You are Offline</h3>
+            <p id="statusDesc">Toggle to go online and receive pickup assignments from NGOs.</p>
+          </div>
+          <div class="toggle-wrap" style="flex-direction:column;align-items:center;gap:8px;">
+            <input type="checkbox" id="statusToggle" class="toggle-input" onchange="toggleStatus(this)"/>
+            <label for="statusToggle" class="toggle-label"></label>
+            <span id="toggleLabel" style="font-size:0.75rem;font-weight:600;color:var(--text-muted);">Go Online</span>
+          </div>
+        </div>
+
+        <!-- STATS -->
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-card-icon">&#128230;</div>
+            <div class="stat-card-value" id="totalDeliveries">28</div>
+            <div class="stat-card-label">Total Deliveries</div>
+            <div class="stat-card-change">+3 this week</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-icon">&#11088;</div>
+            <div class="stat-card-value">4.8</div>
+            <div class="stat-card-label">Rating</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-icon">&#128197;</div>
+            <div class="stat-card-value">7</div>
+            <div class="stat-card-label">This Month</div>
+          </div>
+        </div>
+
+        <!-- OFFLINE/ONLINE PROMPT -->
+        <div id="offlinePrompt" style="text-align:center;padding:60px 20px;border:1px solid var(--border-subtle);border-radius:var(--radius-xl);background:var(--gradient-card);">
+          <div style="font-size:3rem;margin-bottom:16px;">&#128664;</div>
+          <h3 style="font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--text-primary);margin-bottom:8px;">Go Online to Help</h3>
+          <p style="font-size:0.88rem;color:var(--text-muted);max-width:360px;margin:0 auto;">Toggle your status above to go online. NGOs will then be able to assign you donation pickups in your area.</p>
+        </div>
+
+        <div id="onlineReadyCard" style="display:none">
+          <div style="background:linear-gradient(135deg,rgba(39,174,96,0.08),var(--bg-card));border:1px solid rgba(39,174,96,0.25);border-radius:var(--radius-xl);padding:28px;text-align:center;">
+            <div style="font-size:2.5rem;margin-bottom:12px;">&#9989;</div>
+            <h3 style="font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:#27ae60;margin-bottom:8px;">You Are Online</h3>
+            <p style="font-size:0.85rem;color:var(--text-secondary);">Waiting for a pickup assignment from nearby NGOs. You will be notified when one is assigned.</p>
+            <div style="margin-top:20px;display:flex;gap:12px;justify-content:center;align-items:center;">
+              <div class="live-dot" style="width:10px;height:10px;background:#27ae60;border-radius:50%;animation:pulseDot 1.5s infinite;flex-shrink:0;"></div>
+              <span style="font-size:0.82rem;color:var(--text-secondary);">Listening for assignments...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ASSIGNMENT PANEL -->
+      <div class="dashboard-panel" id="panel-assignment">
+        <div id="noAssignment" style="text-align:center;padding:80px 20px;">
+          <div style="font-size:3rem;margin-bottom:16px;">&#128203;</div>
+          <h3 style="font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--text-primary);margin-bottom:8px;">No Active Assignment</h3>
+          <p style="font-size:0.88rem;color:var(--text-muted);margin-bottom:20px;">Go online to start receiving pickup assignments.</p>
+          <button class="btn btn-primary" onclick="switchPanel('home',document.querySelector('[data-panel=home]'))">Go to Home</button>
+        </div>
+
+        <div id="activeAssignment" style="display:none">
+          <div class="dash-section-header">
+            <h2>Active Pickup Assignment</h2>
+            <span class="badge badge-pink">&#9679; Assigned</span>
+          </div>
+
+          <div class="assignment-card">
+            <div class="assignment-header">
+              <div class="assignment-pulse-icon">&#128230;</div>
+              <div>
+                <h3 style="font-family:var(--font-display);font-size:1.1rem;font-weight:800;color:var(--text-primary);" id="assignUserName">Priya Sharma</h3>
+                <p style="font-size:0.82rem;color:var(--text-muted);">Pickup Request by Donor</p>
+              </div>
+              <span class="badge badge-warning" style="margin-left:auto;">Pending Pickup</span>
+            </div>
+
+            <div style="background:var(--gradient-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:16px;margin-top:4px;">
+              <h4 style="font-family:var(--font-display);font-size:0.85rem;font-weight:700;color:var(--text-primary);margin-bottom:10px;">Items to Collect</h4>
+              <div id="assignItems" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+            </div>
+
+            <div class="assignment-meta">
+              <div class="assignment-meta-item">
+                <label>Donor Name</label>
+                <span id="assignUserNameMeta">Priya Sharma</span>
+              </div>
+              <div class="assignment-meta-item">
+                <label>Phone</label>
+                <span id="assignPhone">9876543210</span>
+              </div>
+              <div class="assignment-meta-item">
+                <label>Address</label>
+                <span id="assignAddress">12, Andheri East, Mumbai</span>
+              </div>
+              <div class="assignment-meta-item">
+                <label>Distance</label>
+                <span id="assignDistance">1.8 km</span>
+              </div>
+            </div>
+
+            <!-- MAP -->
+            <div style="margin-top:16px;">
+              <h4 style="font-family:var(--font-display);font-size:0.85rem;font-weight:700;color:var(--text-primary);margin-bottom:10px;">Pickup Location</h4>
+              <div class="mock-map" id="assignMap" style="height:260px;">
+                <div class="mock-map-label">&#128205; Navigate to Donor</div>
+              </div>
+            </div>
+
+            <div style="display:flex;gap:12px;margin-top:16px;flex-wrap:wrap;">
+              <button class="btn btn-success" onclick="markPickedUp()">&#9989; Mark as Picked Up</button>
+              <button class="btn btn-outline" onclick="callDonor()">&#128222; Call Donor</button>
+              <button class="btn btn-danger btn-sm" onclick="reportIssue()">Report Issue</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HISTORY PANEL -->
+      <div class="dashboard-panel" id="panel-history">
+        <div class="dash-section-header">
+          <h2>Delivery History</h2>
+          <p>All your completed pickups</p>
+        </div>
+        <div class="data-table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Date</th><th>Donor</th><th>Items</th><th>NGO</th><th>Status</th></tr></thead>
+            <tbody id="historyBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- PROFILE PANEL -->
+      <div class="dashboard-panel" id="panel-profile">
+        <div class="profile-header-card">
+          <div class="profile-avatar-xl" id="profileAvatar">R</div>
+          <div>
+            <div class="profile-name" id="profileName">Rahul Verma</div>
+            <div class="profile-role-badge">&#128664; Volunteer</div>
+            <div class="profile-meta" id="profileMeta">Member since Mar 2026</div>
+          </div>
+          <div style="margin-left:auto">
+            <div class="stat-card" style="min-width:140px;text-align:center">
+              <div class="stat-card-value" id="profileDeliveries">28</div>
+              <div class="stat-card-label">Deliveries</div>
+            </div>
+          </div>
+        </div>
+        <div style="background:var(--gradient-card);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);padding:24px;">
+          <div class="dash-section-header" style="margin-bottom:16px;"><h2>Personal Information</h2></div>
+          <div class="profile-info-grid" id="profileInfoGrid"></div>
+        </div>
+      </div>
+
+      <!-- FOOTER -->
+      <footer style="margin-top:auto;border-top:1px solid var(--border-subtle);padding:14px 32px;text-align:center;background:var(--bg-secondary);">
+        <span style="font-size:0.78rem;font-weight:700;" class="gradient-text">Made by Ishita and Mahima</span>
+      </footer>
+    </div>
+  </main>
+</div>
+
+<script src="../js/app.js"></script>
+<script>
+  let user;
+  let isOnline = false;
+  let currentAssignment = null;
+
+  let pollInterval = null;
+
+  window.addEventListener('DOMContentLoaded', async () => {
+    user = await AASHE.requireAuth('volunteer');
+    if (!user) return;
+    renderSidebar();
+    renderProfile();
+    
+    // Check for existing assignment/history
+    await fetchDonations();
+
+    document.getElementById('totalDeliveries').textContent = user.total_deliveries || 0;
+    document.getElementById('profileDeliveries').textContent = user.total_deliveries || 0;
+  });
+
+  async function fetchDonations() {
+    const res = await AASHE.apiGetDonations();
+    if (res.ok && res.data.success) {
+      const allReqs = res.data.donations;
+      
+      const req = allReqs.find(r => r.volunteer_id === user.id && r.status === 'accepted');
+      if (req) {
+        currentAssignment = req;
+        document.getElementById('assignBadge').style.display = 'inline-flex';
+        showAssignment(req);
+      } else {
+        document.getElementById('assignBadge').style.display = 'none';
+        document.getElementById('activeAssignment').style.display = 'none';
+        document.getElementById('noAssignment').style.display = 'block';
+        currentAssignment = null;
+      }
+      
+      renderHistory(allReqs.filter(r => r.volunteer_id === user.id && r.status === 'completed'));
+    }
+  }
+
+  function renderSidebar() {
+    document.getElementById('sidebarAvatar').textContent = user.name[0].toUpperCase();
+    document.getElementById('sidebarName').textContent = user.name;
+  }
+
+  async function toggleStatus(checkbox) {
+    isOnline = checkbox.checked;
+    
+    const res = await AASHE.apiUpdateVolunteerStatus(isOnline ? 'online' : 'offline');
+    if(!res.ok) {
+       checkbox.checked = !isOnline; // revert
+       AASHE.showToast('Failed to change status.', 'error');
+       return;
+    }
+
+    const card = document.getElementById('statusCard');
+    const title = document.getElementById('statusTitle');
+    const desc = document.getElementById('statusDesc');
+    const label = document.getElementById('toggleLabel');
+    const indicator = document.getElementById('statusIndicator');
+    const offlinePrompt = document.getElementById('offlinePrompt');
+    const onlineCard = document.getElementById('onlineReadyCard');
+
+    if (isOnline) {
+      card.classList.remove('offline');
+      title.textContent = 'You are Online';
+      title.style.color = '#27ae60';
+      desc.textContent = 'Great! NGOs can now assign you pickup requests.';
+      label.textContent = 'Go Offline';
+      label.style.color = '#27ae60';
+      indicator.className = 'badge badge-success';
+      indicator.innerHTML = '&#9679; Online';
+      offlinePrompt.style.display = 'none';
+      onlineCard.style.display = 'block';
+      AASHE.showToast('You are now online! Waiting for assignments.', 'success');
+
+      // Poll for assignments
+      if (pollInterval) clearInterval(pollInterval);
+      pollInterval = setInterval(async () => {
+        if (!isOnline) return;
+        await fetchDonations();
+        if (currentAssignment) {
+           AASHE.showToast('New pickup assignment received!', 'info', 5000);
+           clearInterval(pollInterval);
+        }
+      }, 5000);
+
+    } else {
+      if (pollInterval) clearInterval(pollInterval);
+      card.classList.add('offline');
+      title.textContent = 'You are Offline';
+      title.style.color = '';
+      desc.textContent = 'Toggle to go online and receive pickup assignments from NGOs.';
+      label.textContent = 'Go Online';
+      label.style.color = '';
+      indicator.className = 'badge badge-warning';
+      indicator.innerHTML = '&#9679; Offline';
+      offlinePrompt.style.display = 'block';
+      onlineCard.style.display = 'none';
+      AASHE.showToast('You are now offline.', 'info');
+    }
+  }
+
+  function showAssignment(req) {
+    document.getElementById('noAssignment').style.display = 'none';
+    document.getElementById('activeAssignment').style.display = 'block';
+    document.getElementById('assignUserName').textContent = req.donor_name;
+    document.getElementById('assignUserNameMeta').textContent = req.donor_name;
+    document.getElementById('assignPhone').textContent = req.donor_phone || '9876543210';
+    document.getElementById('assignAddress').textContent = req.address || 'Mumbai, India';
+    document.getElementById('assignDistance').textContent = req.distance || '1.8 km';
+
+    // Render map
+    const map = document.getElementById('assignMap');
+    map.querySelectorAll('.map-location-pin,.map-ping').forEach(e => e.remove());
+    const fakeTop = 30 + (req.id * 13) % 40;
+    const fakeLeft = 20 + (req.id * 27) % 50;
+
+    const pin = document.createElement('div');
+    pin.className = 'map-location-pin';
+    pin.style.cssText = `position:absolute;top:${fakeTop}%;left:${fakeLeft}%`;
+    pin.innerHTML = `<div class="map-pin-icon">📍</div><div class="map-pin-label">${req.donor_name}</div>`;
+    map.appendChild(pin);
+
+    // volunteer position (self)
+    const selfDot = document.createElement('div');
+    selfDot.className = 'volunteer-map-dot';
+    selfDot.style.cssText = 'position:absolute;top:65%;left:25%;';
+    selfDot.title = 'You';
+    map.appendChild(selfDot);
+  }
+
+  async function markPickedUp() {
+    if (!currentAssignment) return;
+    const res = await AASHE.apiUpdateDonationStatus(currentAssignment.id, { status: 'completed' });
+    if(res.ok) {
+      AASHE.showToast('Pickup marked as complete! Great job!', 'success');
+      currentAssignment = null;
+      user.total_deliveries = (user.total_deliveries || 0) + 1;
+      document.getElementById('totalDeliveries').textContent = user.total_deliveries;
+      document.getElementById('profileDeliveries').textContent = user.total_deliveries;
+      await fetchDonations();
+      
+      // If still online, resume polling
+      if (isOnline && pollInterval) {
+         clearInterval(pollInterval);
+         pollInterval = setInterval(async () => {
+           if (!isOnline) return;
+           await fetchDonations();
+           if (currentAssignment) {
+              AASHE.showToast('New pickup assignment received!', 'info', 5000);
+              clearInterval(pollInterval);
+           }
+         }, 5000);
+      }
+    }
+  }
+
+  function callDonor() {
+    AASHE.showToast('Calling donor... (simulated)', 'info');
+  }
+
+  function reportIssue() {
+    AASHE.showToast('Issue report sent to NGO. (simulated)', 'warning');
+  }
+
+  function renderProfile() {
+    document.getElementById('profileAvatar').textContent = user.name[0].toUpperCase();
+    document.getElementById('profileName').textContent = user.name;
+    document.getElementById('profileMeta').textContent = `Member since ${user.joinDate || 'Mar 2026'}`;
+
+    const fields = [
+      { label: 'Full Name', value: user.name },
+      { label: 'Email Address', value: user.email },
+      { label: 'Phone Number', value: user.phone || 'Not provided' },
+      { label: 'City', value: user.city || 'Not provided' },
+      { label: 'Vehicle Type', value: user.vehicle || 'Bike' },
+      { label: 'Total Deliveries', value: String(user.totalDeliveries || 28) }
+    ];
+    document.getElementById('profileInfoGrid').innerHTML = fields.map(f => `
+      <div class="profile-info-item">
+        <div class="profile-info-label">${f.label}</div>
+        <div class="profile-info-value">${f.value}</div>
+      </div>
+    `).join('');
+  }
+
+  function renderHistory(completedReqs = []) {
+    const tbody = document.getElementById('historyBody');
+    if (completedReqs.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:40px;">No completed pickups yet.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = completedReqs.map(r => `
+      <tr>
+        <td>${new Date(r.created_at).toLocaleString()}</td>
+        <td>${r.donor_name}</td>
+        <td>${r.items.map(i=>`${i.emoji} ${i.name}`).join(', ')}</td>
+        <td>${r.ngo_name || 'NGO'}</td>
+        <td><span class="badge badge-success">Completed</span></td>
+      </tr>
+    `).join('');
+  }
+
+  function switchPanel(name, el) {
+    document.querySelectorAll('.dashboard-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.sidebar-nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('panel-' + name).classList.add('active');
+    if (el) el.classList.add('active');
+    const titles = { home:'Home', assignment:'Assignment', history:'History', profile:'Profile' };
+    document.getElementById('topbarTitle').textContent = titles[name] || name;
+  }
+
+  function logout() {
+    AASHE.clearSession();
+    window.location.href = '../index.html';
+  }
+</script>
+</body>
+</html>

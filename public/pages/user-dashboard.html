@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Aashe Donor Dashboard - Manage your donations, track pickups, and see your impact."/>
+  <title>Donor Dashboard | Aashe</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../css/style.css"/>
+  <link rel="stylesheet" href="../css/dashboard.css"/>
+</head>
+<body>
+<div class="dashboard-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a href="../index.html" class="nav-logo">
+        <span class="logo-icon">&#10084;</span>
+        <span class="logo-text">Aashe</span>
+      </a>
+    </div>
+    <nav class="sidebar-nav">
+      <span class="sidebar-section-label">Menu</span>
+      <div class="sidebar-nav-item active" data-panel="profile" onclick="switchPanel('profile', this)">
+        <span class="sidebar-nav-icon">&#128100;</span> Profile
+      </div>
+      <div class="sidebar-nav-item" data-panel="donate" onclick="switchPanel('donate', this)">
+        <span class="sidebar-nav-icon">&#127873;</span> Donate Items
+      </div>
+      <div class="sidebar-nav-item" data-panel="track" onclick="switchPanel('track', this)">
+        <span class="sidebar-nav-icon">&#128205;</span> Track Pickup
+      </div>
+      <div class="sidebar-nav-item" data-panel="history" onclick="switchPanel('history', this)">
+        <span class="sidebar-nav-icon">&#128203;</span> History
+      </div>
+    </nav>
+    <div class="sidebar-user-area">
+      <div class="sidebar-avatar" id="sidebarAvatar">P</div>
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name" id="sidebarName">Priya Sharma</div>
+        <div class="sidebar-user-role">Donor</div>
+      </div>
+      <span class="sidebar-logout" onclick="logout()" title="Logout">&#128682;</span>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="dashboard-main">
+    <div class="dashboard-topbar">
+      <div>
+        <div class="topbar-title" id="topbarTitle">Profile</div>
+        <div class="topbar-subtitle">Donor Dashboard</div>
+      </div>
+      <div class="topbar-actions">
+        <div class="topbar-notif" id="notifBell">
+          &#128276;
+          <div class="notif-dot" id="notifDot"></div>
+        </div>
+        <div class="btn btn-sm btn-outline" onclick="switchPanel('donate', document.querySelector('[data-panel=donate]'))">
+          + New Donation
+        </div>
+      </div>
+    </div>
+
+    <div class="dashboard-content">
+
+      <!-- PROFILE PANEL -->
+      <div class="dashboard-panel active" id="panel-profile">
+        <div class="profile-header-card">
+          <div class="profile-avatar-xl" id="profileAvatar">P</div>
+          <div>
+            <div class="profile-name" id="profileName">Priya Sharma</div>
+            <div class="profile-role-badge">&#129309; Donor</div>
+            <div class="profile-meta" id="profileMeta">Member since Jan 2026</div>
+          </div>
+          <div style="margin-left:auto">
+            <div class="stat-card" style="min-width:140px;text-align:center">
+              <div class="stat-card-value" id="totalDonations">4</div>
+              <div class="stat-card-label">Total Donations</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="background:var(--gradient-card);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);padding:24px;">
+          <div class="dash-section-header" style="margin-bottom:16px;">
+            <h2>Personal Information</h2>
+          </div>
+          <div class="profile-info-grid" id="profileInfoGrid">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- DONATE PANEL -->
+      <div class="dashboard-panel" id="panel-donate">
+        <div class="dash-section-header">
+          <h2>Select Items to Donate</h2>
+          <p>Choose items and set quantities</p>
+        </div>
+
+        <div class="items-grid" id="itemsGrid">
+          <!-- Populated by JS -->
+        </div>
+
+        <div id="donateActions" style="margin-top:28px;display:none">
+          <div style="background:var(--gradient-card);border:1px solid var(--border-pink);border-radius:var(--radius-lg);padding:20px;margin-bottom:16px;">
+            <h3 style="font-family:var(--font-display);font-size:1rem;font-weight:700;color:var(--text-primary);margin-bottom:12px;">Selected Items Summary</h3>
+            <div id="selectedSummary" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;"></div>
+            <div class="form-group">
+              <label class="form-label">Pickup Notes (optional)</label>
+              <textarea class="form-textarea" id="pickupNotes" placeholder="Any special instructions for pickup (gate code, timing preference, etc.)" style="min-height:70px;"></textarea>
+            </div>
+          </div>
+          <button class="btn btn-primary btn-lg" onclick="submitDonation()" id="requestBtn">
+            &#128225; Request Pickup
+          </button>
+        </div>
+
+        <!-- BROADCAST STATE -->
+        <div id="broadcastState" style="display:none;text-align:center;padding:60px 20px;">
+          <div style="position:relative;width:120px;height:120px;margin:0 auto 24px;">
+            <div style="position:absolute;inset:0;border-radius:50%;background:rgba(233,30,140,0.15);border:2px solid rgba(233,30,140,0.3);animation:broadcastRing 2s ease-out infinite;"></div>
+            <div style="position:absolute;inset:20px;border-radius:50%;background:rgba(233,30,140,0.15);border:2px solid rgba(233,30,140,0.3);animation:broadcastRing 2s ease-out 0.6s infinite;"></div>
+            <div style="position:absolute;inset:40px;border-radius:50%;background:var(--gradient-primary);display:flex;align-items:center;justify-content:center;font-size:1.2rem;">&#128225;</div>
+          </div>
+          <h3 style="font-family:var(--font-display);font-size:1.3rem;font-weight:800;color:var(--text-primary);margin-bottom:8px;">Broadcasting Request</h3>
+          <p style="font-size:0.88rem;color:var(--text-secondary);max-width:400px;margin:0 auto 24px;">Your donation request is being broadcast to nearby NGOs. This usually takes 1 to 3 minutes.</p>
+          <div id="broadcastTimer" style="font-family:var(--font-display);font-size:1.8rem;font-weight:800;background:var(--gradient-primary);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;"></div>
+          <button class="btn btn-secondary btn-sm mt-2" onclick="cancelBroadcast()">Cancel Request</button>
+        </div>
+      </div>
+
+      <!-- TRACK PANEL -->
+      <div class="dashboard-panel" id="panel-track">
+        <div id="noActivePickup" style="text-align:center;padding:80px 20px;">
+          <div style="font-size:3rem;margin-bottom:16px;">&#128205;</div>
+          <h3 style="font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--text-primary);margin-bottom:8px;">No Active Pickup</h3>
+          <p style="font-size:0.88rem;color:var(--text-muted);margin-bottom:20px;">Place a donation request to start tracking a volunteer.</p>
+          <button class="btn btn-primary" onclick="switchPanel('donate', document.querySelector('[data-panel=donate]'))">Donate Now</button>
+        </div>
+
+        <div id="activeTracking" style="display:none">
+          <div class="dash-section-header">
+            <h2>Live Volunteer Tracking</h2>
+            <span class="badge badge-success" style="animation:pulseDot 1.5s infinite">&#9679; Live</span>
+          </div>
+
+          <div class="tracking-card">
+            <div class="tracking-header">
+              <h3 style="font-family:var(--font-display);font-weight:700;color:var(--text-primary);">Pickup in Progress</h3>
+              <div class="tracking-status-live">
+                <div class="live-dot"></div>
+                Volunteer En Route
+              </div>
+            </div>
+            <div class="tracking-map mock-map" id="trackingMap">
+              <div class="mock-map-label">&#128205; Mumbai, India (Simulated)</div>
+              <!-- Pins populated by JS -->
+            </div>
+            <div class="tracking-info">
+              <div class="volunteer-avatar-lg" id="volAvatarLg">R</div>
+              <div class="volunteer-details">
+                <div class="volunteer-name" id="volName">Rahul Verma</div>
+                <div class="volunteer-meta" id="volMeta">&#128664; Bike rider | &#128222; 9988776655</div>
+                <div style="margin-top:6px;display:flex;gap:8px;flex-wrap:wrap;">
+                  <span class="badge badge-success">Online</span>
+                  <span class="badge badge-pink">Assigned to you</span>
+                </div>
+              </div>
+              <div class="volunteer-distance">
+                <span id="volDistance">1.8 km</span>
+                <small>away from you</small>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top:20px;background:var(--gradient-card);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);padding:20px;">
+            <h3 style="font-family:var(--font-display);font-weight:700;font-size:0.95rem;color:var(--text-primary);margin-bottom:12px;">Your Donation Items</h3>
+            <div id="activeItems" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HISTORY PANEL -->
+      <div class="dashboard-panel" id="panel-history">
+        <div class="dash-section-header">
+          <h2>Donation History</h2>
+          <p>All your past donations</p>
+        </div>
+        <div class="data-table-wrap">
+          <table class="data-table" id="historyTable">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Items</th>
+                <th>NGO</th>
+                <th>Volunteer</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="historyBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- FOOTER -->
+      <footer style="margin-top:auto;border-top:1px solid var(--border-subtle);padding:14px 32px;text-align:center;background:var(--bg-secondary);">
+        <span style="font-size:0.78rem;font-weight:700;" class="gradient-text">Made by Ishita and Mahima</span>
+      </footer>
+    </div>
+  </main>
+</div>
+
+<script src="../js/app.js"></script>
+<script>
+  let user;
+  let selectedItems = {};
+  let broadcastInterval = null;
+  let broadcastSeconds = 0;
+  let activeRequest = null;
+
+  const ITEMS = [
+    { id: 'clothes', name: 'Clothes', emoji: '👕', desc: 'Shirts, pants, jackets' },
+    { id: 'books', name: 'Books', emoji: '📚', desc: 'Textbooks, novels' },
+    { id: 'food', name: 'Food', emoji: '🥫', desc: 'Non-perishable items' },
+    { id: 'toys', name: 'Toys', emoji: '🧸', desc: 'Games and playthings' },
+    { id: 'medicine', name: 'Medicine', emoji: '💊', desc: 'OTC medicines, vitamins' },
+    { id: 'electronics', name: 'Electronics', emoji: '📱', desc: 'Phones, tablets, etc.' }
+  ];
+
+  window.addEventListener('DOMContentLoaded', async () => {
+    user = await AASHE.requireAuth('user');
+    if (!user) return;
+
+    renderSidebar();
+    renderProfile();
+    renderItemsGrid();
+    
+    // Fetch real donations
+    const res = await AASHE.apiGetDonations();
+    if (res.ok && res.data.success) {
+      const userReqs = res.data.donations;
+      renderHistory(userReqs);
+
+      // Check for active request
+      const active = userReqs.find(r => r.status === 'accepted' || r.status === 'pending');
+      if (active) {
+        activeRequest = active;
+        if (active.status === 'accepted') {
+          showActiveTracking(active);
+        } else {
+          // It's pending, just show broadcast state without the animation timeout
+          document.getElementById('itemsGrid').style.display = 'none';
+          document.getElementById('donateActions').style.display = 'none';
+          document.getElementById('broadcastState').style.display = 'block';
+          document.getElementById('broadcastTimer').textContent = 'Waiting for NGO...';
+        }
+      }
+    }
+  });
+
+  function renderSidebar() {
+    document.getElementById('sidebarAvatar').textContent = user.name[0].toUpperCase();
+    document.getElementById('sidebarName').textContent = user.name;
+  }
+
+  function renderProfile() {
+    document.getElementById('profileAvatar').textContent = user.name[0].toUpperCase();
+    document.getElementById('profileName').textContent = user.name;
+    document.getElementById('profileMeta').textContent = `Member since ${user.joinDate || 'Jan 2026'}`;
+    document.getElementById('totalDonations').textContent = user.totalDonations || 0;
+
+    const fields = [
+      { label: 'Full Name', value: user.name },
+      { label: 'Email Address', value: user.email },
+      { label: 'Phone Number', value: user.phone || 'Not provided' },
+      { label: 'City', value: user.city || 'Not provided' },
+      { label: 'Address', value: user.address || 'Not provided' },
+      { label: 'Account Role', value: 'Donor' }
+    ];
+
+    const grid = document.getElementById('profileInfoGrid');
+    grid.innerHTML = fields.map(f => `
+      <div class="profile-info-item">
+        <div class="profile-info-label">${f.label}</div>
+        <div class="profile-info-value">${f.value}</div>
+      </div>
+    `).join('');
+  }
+
+  function renderItemsGrid() {
+    const grid = document.getElementById('itemsGrid');
+    grid.innerHTML = ITEMS.map(item => `
+      <div class="item-card" id="item-${item.id}" onclick="toggleItem('${item.id}')">
+        <div class="item-card-check">✓</div>
+        <div class="item-emoji">${item.emoji}</div>
+        <div class="item-name">${item.name}</div>
+        <div style="font-size:0.72rem;color:var(--text-muted);margin-bottom:8px;">${item.desc}</div>
+        <div class="item-qty-control" onclick="event.stopPropagation()">
+          <button class="qty-btn" onclick="changeQty('${item.id}', -1)">-</button>
+          <span class="qty-display" id="qty-${item.id}">1</span>
+          <button class="qty-btn" onclick="changeQty('${item.id}', 1)">+</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function toggleItem(id) {
+    const card = document.getElementById('item-' + id);
+    if (selectedItems[id]) {
+      delete selectedItems[id];
+      card.classList.remove('selected');
+    } else {
+      selectedItems[id] = 1;
+      card.classList.add('selected');
+    }
+    updateDonateActions();
+  }
+
+  function changeQty(id, delta) {
+    if (!selectedItems[id]) { selectedItems[id] = 1; document.getElementById('item-'+id).classList.add('selected'); }
+    selectedItems[id] = Math.max(1, (selectedItems[id] || 1) + delta);
+    document.getElementById('qty-' + id).textContent = selectedItems[id];
+    updateDonateActions();
+  }
+
+  function updateDonateActions() {
+    const hasItems = Object.keys(selectedItems).length > 0;
+    const actions = document.getElementById('donateActions');
+    actions.style.display = hasItems ? 'block' : 'none';
+
+    const summary = document.getElementById('selectedSummary');
+    summary.innerHTML = Object.entries(selectedItems).map(([id, qty]) => {
+      const item = ITEMS.find(i => i.id === id);
+      return `<span class="request-item-tag">${item.emoji} ${item.name} x${qty}</span>`;
+    }).join('');
+  }
+
+  async function submitDonation() {
+    if (Object.keys(selectedItems).length === 0) {
+      AASHE.showToast('Please select at least one item.', 'error');
+      return;
+    }
+
+    // Build request
+    const items = Object.entries(selectedItems).map(([id, qty]) => {
+      const item = ITEMS.find(i => i.id === id);
+      return { name: item.name, emoji: item.emoji, qty };
+    });
+
+    const newReq = {
+      address: user.address || 'Your Location',
+      phone: user.phone || '9999999999',
+      name: user.name,
+      items: items
+    };
+
+    const res = await AASHE.apiCreateDonation(newReq);
+    if (!res.ok || !res.data.success) {
+      AASHE.showToast('Failed to create donation request.', 'error');
+      return;
+    }
+
+    activeRequest = res.data.donation;
+
+    // Show broadcast state
+    document.getElementById('itemsGrid').style.display = 'none';
+    document.getElementById('donateActions').style.display = 'none';
+    document.getElementById('broadcastState').style.display = 'block';
+
+    AASHE.showToast('Request sent! Waiting for NGO to accept...', 'info');
+
+    broadcastSeconds = 0;
+    const timerEl = document.getElementById('broadcastTimer');
+    broadcastInterval = setInterval(() => {
+      broadcastSeconds++;
+      const mins = Math.floor(broadcastSeconds / 60);
+      const secs = broadcastSeconds % 60;
+      timerEl.textContent = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+    }, 1000);
+    
+    // Periodically poll for status change
+    const pollInterval = setInterval(async () => {
+      const pRes = await AASHE.apiGetDonations();
+      if (pRes.ok && pRes.data.success) {
+         const updated = pRes.data.donations.find(r => r.id === activeRequest.id);
+         if (updated && updated.status === 'accepted') {
+            clearInterval(pollInterval);
+            clearInterval(broadcastInterval);
+            document.getElementById('broadcastState').style.display = 'none';
+            document.getElementById('itemsGrid').style.display = 'grid';
+            AASHE.showToast('Request accepted! Volunteer assigned.', 'success', 5000);
+            showActiveTracking(updated);
+            setTimeout(() => switchPanel('track', document.querySelector('[data-panel=track]')), 1500);
+         }
+      }
+    }, 3000);
+  }
+
+  function cancelBroadcast() {
+    clearInterval(broadcastInterval);
+    document.getElementById('broadcastState').style.display = 'none';
+    document.getElementById('itemsGrid').style.display = 'grid';
+    selectedItems = {};
+    document.querySelectorAll('.item-card').forEach(c => c.classList.remove('selected'));
+    updateDonateActions();
+    AASHE.showToast('Request cancelled.', 'info');
+  }
+
+  function showActiveTracking(req) {
+    document.getElementById('noActivePickup').style.display = 'none';
+    document.getElementById('activeTracking').style.display = 'block';
+
+    // Volunteer info
+    const volName = req.volunteerName || 'Rahul Verma';
+    document.getElementById('volAvatarLg').textContent = volName[0];
+    document.getElementById('volName').textContent = volName;
+    document.getElementById('volMeta').textContent = `🚴 Bike rider | 📞 ${req.volunteerPhone || '9988776655'}`;
+    document.getElementById('volDistance').textContent = req.distance || '1.8 km';
+
+    // Items
+    document.getElementById('activeItems').innerHTML = req.items.map(i =>
+      `<span class="request-item-tag">${i.emoji} ${i.name} x${i.qty}</span>`
+    ).join('');
+
+    // Map
+    renderTrackingMap(req);
+  }
+
+  function renderTrackingMap(req) {
+    const map = document.getElementById('trackingMap');
+    // Remove old pins
+    map.querySelectorAll('.map-location-pin,.volunteer-map-dot').forEach(e => e.remove());
+
+    const fakeTop = 30 + (req.id * 13) % 40;
+    const fakeLeft = 20 + (req.id * 27) % 50;
+
+    // User pin
+    const pin = document.createElement('div');
+    pin.className = 'map-location-pin';
+    pin.style.top = fakeTop + '%';
+    pin.style.left = fakeLeft + '%';
+    pin.style.position = 'absolute';
+    pin.innerHTML = `<div class="map-pin-icon">📍</div><div class="map-pin-label">${req.name || 'You'}</div>`;
+    map.appendChild(pin);
+
+    // Volunteer dot (animated)
+    if (req.volunteer_name) {
+      const vDot = document.createElement('div');
+      vDot.className = 'volunteer-map-dot';
+      vDot.style.top = (fakeTop + 20) + '%';
+      vDot.style.left = (fakeLeft - 10) + '%';
+      vDot.title = 'Volunteer';
+      map.appendChild(vDot);
+
+      // Simulate movement
+      let progress = 0;
+      const moveInterval = setInterval(() => {
+        progress += 0.01;
+        if (progress >= 1) {
+          clearInterval(moveInterval);
+          AASHE.showToast('Volunteer has arrived! Please hand over your items.', 'success', 6000);
+          return;
+        }
+        const startTop = fakeTop + 20;
+        const endTop = fakeTop + 5;
+        const startLeft = fakeLeft - 10;
+        const endLeft = fakeLeft - 5;
+        vDot.style.top = (startTop + (endTop - startTop) * progress) + '%';
+        vDot.style.left = (startLeft + (endLeft - startLeft) * progress) + '%';
+
+        // Update distance
+        const dist = (1.8 * (1 - progress)).toFixed(1);
+        document.getElementById('volDistance').textContent = dist + ' km';
+      }, 500);
+    }
+  }
+
+  function renderHistory(userReqs) {
+    const tbody = document.getElementById('historyBody');
+    if (!userReqs || userReqs.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:40px;">No donations yet. Start by donating items!</td></tr>';
+      return;
+    }
+    tbody.innerHTML = userReqs.map(r => `
+      <tr>
+        <td>${new Date(r.created_at).toLocaleString()}</td>
+        <td>${r.items.map(i => `${i.emoji} ${i.name} x${i.qty}`).join(', ')}</td>
+        <td>${r.ngo_id ? 'Assigned' : 'Pending'}</td>
+        <td>${r.volunteer_name || 'Not assigned'}</td>
+        <td><span class="badge badge-${r.status === 'completed' ? 'success' : r.status === 'accepted' ? 'info' : 'warning'}">${r.status}</span></td>
+      </tr>
+    `).join('');
+  }
+
+  function switchPanel(name, el) {
+    document.querySelectorAll('.dashboard-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.sidebar-nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('panel-' + name).classList.add('active');
+    if (el) el.classList.add('active');
+    document.getElementById('topbarTitle').textContent = name.charAt(0).toUpperCase() + name.slice(1).replace('-', ' ');
+  }
+
+  function logout() {
+    AASHE.clearSession();
+    window.location.href = '../index.html';
+  }
+</script>
+</body>
+</html>

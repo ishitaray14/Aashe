@@ -1,0 +1,23 @@
+databases:
+  - name: aashe-db
+    databaseName: aashe
+    user: aashe_user
+    plan: free
+
+services:
+  - type: web
+    name: aashe-web
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: aashe-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: NODE_ENV
+        value: production
